@@ -11,9 +11,14 @@ import {
 } from '@/components/ui/card';
 import {
   AlertCircle, CheckCircle2, LayoutGrid,
-  PlayCircle, BarChart3
+  PlayCircle, BarChart3, BellRing, BellOff, BellPlus
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useState, useEffect, useCallback } from 'react';
+import { requestNotificationPermission, showSimpleNotification } from '@/lib/notificationUtils';
+
+const NOTIFICATION_INTERVAL = 60 * 1000; // 1 minute for testing, adjust as needed (e.g., 5 * 60 * 1000 for 5 mins)
+const DUE_CARDS_NOTIFICATION_TAG = 'due-cards-reminder';
 
 export default function DashboardPage() {
   const { getDueCardsCount, getOverallStats, decks, cards, isLoading } = useFlashwiseStore();
@@ -22,6 +27,51 @@ export default function DashboardPage() {
 
   const [imagePreview, setImagePreview] = usePersistedState<string | null>('dashboardImagePreview', null);
   const [fileName, setFileName] = usePersistedState<string>('dashboardImageFileName', "");
+  
+  const [notificationStatus, setNotificationStatus] = useState<NotificationPermission | 'loading' | 'unsupported'>('loading');
+
+  useEffect(() => {
+    if (!('Notification' in window)) {
+      setNotificationStatus('unsupported');
+      return;
+    }
+    setNotificationStatus(Notification.permission);
+  }, []);
+
+  const handleRequestPermission = async () => {
+    setNotificationStatus('loading');
+    const permission = await requestNotificationPermission();
+    setNotificationStatus(permission);
+  };
+
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout | undefined;
+
+    if (notificationStatus === 'granted' && !isLoading) {
+      const checkAndNotify = () => {
+        const dueCount = getDueCardsCount();
+        if (dueCount > 0) {
+          showSimpleNotification(
+            'FlashWise Reminder',
+            `You have ${dueCount} card${dueCount > 1 ? 's' : ''} due for review!`,
+            DUE_CARDS_NOTIFICATION_TAG
+          );
+        }
+      };
+      
+      // Initial check
+      checkAndNotify(); 
+      
+      intervalId = setInterval(checkAndNotify, NOTIFICATION_INTERVAL);
+    }
+
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [notificationStatus, isLoading, getDueCardsCount]);
+
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -35,7 +85,7 @@ export default function DashboardPage() {
     }
   };
 
-  if (isLoading) {
+  if (isLoading && notificationStatus === 'loading') {
     return (
       <div className="container mx-auto py-8 space-y-8">
         <Skeleton className="h-12 w-1/2" />
@@ -53,69 +103,94 @@ export default function DashboardPage() {
 
   return (
     <div className="container mx-auto py-8">
-      <div className="mb-10 p-6 md:p-8 bg-gradient-to-br from-primary/15 via-primary/5 to-background rounded-xl shadow-lg flex flex-col md:flex-row items-center justify-between">
-        <div>
-          <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-3">Welcome to FlashWise!</h1>
-          <p className="text-lg text-muted-foreground max-w-xl mb-6">
-            Enhance your learning with smart flashcards and spaced repetition. Let's get started!
-          </p>
-          {!hasDecksOrCards && (
-            <Link href="/decks" passHref legacyBehavior>
-              <Button size="lg">Create Your First Deck</Button>
-            </Link>
-          )}
-        </div>
-
-        {/* Modern Image Upload and Preview - Removed hidden md:block */}
-        <div className="mt-6 md:mt-0 text-center w-full md:w-auto">
-          <div className="mb-4">
-            <label className="block mb-2 text-sm font-medium text-foreground">Upload Your Own Image</label>
-
-            {!imagePreview && (
-              <div className="flex items-center justify-center w-full">
-                <label htmlFor="dashboard-image-upload" className="flex flex-col items-center justify-center w-full h-32 bg-card border-2 border-border border-dashed rounded-lg cursor-pointer hover:bg-muted/50 transition">
-                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                    <svg
-                      aria-hidden="true"
-                      className="w-8 h-8 mb-3 text-muted-foreground"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M7 16V4m0 0L3 8m4-4l4 4M3 20h18"
-                      />
-                    </svg>
-                    <p className="text-sm text-muted-foreground">
-                      <span className="font-semibold">Click to upload</span> or drag and drop
-                    </p>
-                  </div>
-                  <input
-                    id="dashboard-image-upload"
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleImageUpload}
-                  />
-                </label>
-              </div>
+      <div className="mb-10 p-6 md:p-8 bg-gradient-to-br from-primary/15 via-primary/5 to-background rounded-xl shadow-lg ">
+        <div className="flex flex-col md:flex-row items-center justify-between mb-6">
+          <div>
+            <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-3">Welcome to FlashWise!</h1>
+            <p className="text-lg text-muted-foreground max-w-xl mb-6">
+              Enhance your learning with smart flashcards and spaced repetition. Let's get started!
+            </p>
+            {!hasDecksOrCards && (
+              <Link href="/decks" passHref legacyBehavior>
+                <Button size="lg">Create Your First Deck</Button>
+              </Link>
             )}
           </div>
 
-          <div className="overflow-hidden rounded-lg shadow-lg border border-border hover:shadow-2xl transition duration-300 max-w-xs mx-auto">
-            <Image
-              src={imagePreview || "https://placehold.co/300x200.png"}
-              alt={fileName || "Learning Illustration"}
-              width={300}
-              height={200}
-              className="object-cover transition-transform duration-300 hover:scale-105 w-full h-auto"
-              data-ai-hint="education learning"
-            />
+          <div className="mt-6 md:mt-0 text-center w-full md:w-auto">
+            <div className="mb-4">
+              <label className="block mb-2 text-sm font-medium text-foreground">Upload Your Own Image</label>
+              {!imagePreview && (
+                <div className="flex items-center justify-center w-full">
+                  <label htmlFor="dashboard-image-upload" className="flex flex-col items-center justify-center w-full h-32 bg-card border-2 border-border border-dashed rounded-lg cursor-pointer hover:bg-muted/50 transition">
+                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                      <svg
+                        aria-hidden="true"
+                        className="w-8 h-8 mb-3 text-muted-foreground"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M7 16V4m0 0L3 8m4-4l4 4M3 20h18"
+                        />
+                      </svg>
+                      <p className="text-sm text-muted-foreground">
+                        <span className="font-semibold">Click to upload</span> or drag and drop
+                      </p>
+                    </div>
+                    <input
+                      id="dashboard-image-upload"
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleImageUpload}
+                    />
+                  </label>
+                </div>
+              )}
+            </div>
+            <div className="overflow-hidden rounded-lg shadow-lg border border-border hover:shadow-2xl transition duration-300 max-w-xs mx-auto">
+              <Image
+                src={imagePreview || "https://placehold.co/300x200.png"}
+                alt={fileName || "Learning Illustration"}
+                width={300}
+                height={200}
+                className="object-cover transition-transform duration-300 hover:scale-105 w-full h-auto"
+                data-ai-hint="education learning"
+              />
+            </div>
           </div>
         </div>
+        
+        {/* Notification Button Section */}
+        {notificationStatus !== 'unsupported' && (
+          <div className="mt-6 pt-4 border-t border-border/50">
+            {notificationStatus === 'default' && (
+              <Button onClick={handleRequestPermission} variant="outline">
+                <BellPlus className="mr-2 h-4 w-4" /> Enable Notifications for Due Cards
+              </Button>
+            )}
+            {notificationStatus === 'granted' && (
+              <div className="flex items-center text-sm text-green-600">
+                <BellRing className="mr-2 h-5 w-5" /> Notifications are enabled. You'll be reminded of due cards.
+              </div>
+            )}
+            {notificationStatus === 'denied' && (
+              <div className="flex items-center text-sm text-destructive">
+                <BellOff className="mr-2 h-5 w-5" /> Notification permission denied. You can change this in your browser settings.
+              </div>
+            )}
+            {notificationStatus === 'loading' && !isLoading && (
+               <Button variant="outline" disabled>
+                <BellPlus className="mr-2 h-4 w-4 animate-pulse" /> Checking permissions...
+              </Button>
+            )}
+          </div>
+        )}
 
       </div>
 
@@ -229,3 +304,4 @@ export default function DashboardPage() {
     </div>
   );
 }
+
