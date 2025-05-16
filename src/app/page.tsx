@@ -31,7 +31,7 @@ export default function DashboardPage() {
 
   return (
     <div className="container mx-auto py-8">
-      <div className="mb-10 p-6 md:p-8 bg-gradient-to-r from-primary/10 via-background to-background rounded-lg shadow-sm flex flex-col md:flex-row items-center justify-between">
+      <div className="mb-10 p-6 md:p-8 bg-gradient-to-br from-primary/15 via-primary/5 to-background rounded-xl shadow-lg flex flex-col md:flex-row items-center justify-between">
         <div>
           <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-3">Welcome to FlashWise!</h1>
           <p className="text-lg text-muted-foreground max-w-xl mb-6">
@@ -56,7 +56,7 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-10">
-        <Card className="hover:shadow-lg transition-shadow">
+        <Card className="hover:shadow-xl transition-shadow duration-300 rounded-lg">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-base font-medium">Cards Due Today</CardTitle>
             {overallDueCount > 0 ? <PlayCircle className="h-5 w-5 text-primary" /> : <CheckCircle2 className="h-5 w-5 text-green-500" />}
@@ -83,7 +83,7 @@ export default function DashboardPage() {
           </CardFooter>
         </Card>
 
-        <Card className="hover:shadow-lg transition-shadow">
+        <Card className="hover:shadow-xl transition-shadow duration-300 rounded-lg">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-base font-medium">Manage Decks</CardTitle>
             <LayoutGrid className="h-5 w-5 text-muted-foreground" />
@@ -101,7 +101,7 @@ export default function DashboardPage() {
           </CardFooter>
         </Card>
 
-        <Card className="hover:shadow-lg transition-shadow">
+        <Card className="hover:shadow-xl transition-shadow duration-300 rounded-lg">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-base font-medium">Your Stats</CardTitle>
             <BarChart3 className="h-5 w-5 text-muted-foreground" />
@@ -121,7 +121,7 @@ export default function DashboardPage() {
       </div>
       
       {decks.length > 0 && overallDueCount === 0 && (
-        <Card className="bg-accent/20 border-accent">
+        <Card className="bg-accent/20 border-accent rounded-lg">
             <CardHeader>
                 <CardTitle className="text-accent-foreground flex items-center gap-2">
                     <CheckCircle2 className="h-6 w-6 text-accent" />
@@ -139,7 +139,7 @@ export default function DashboardPage() {
       )}
 
       {decks.length === 0 && (
-         <Card className="bg-primary/10 border-primary">
+         <Card className="bg-primary/10 border-primary rounded-lg">
             <CardHeader>
                 <CardTitle className="text-primary flex items-center gap-2">
                     <AlertCircle className="h-6 w-6 text-primary" />

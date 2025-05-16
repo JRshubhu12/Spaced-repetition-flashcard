@@ -40,7 +40,7 @@ export function DeckItem({ deck }: DeckItemProps) {
   };
 
   return (
-    <Card className="flex flex-col h-full shadow-md hover:shadow-lg transition-shadow duration-200">
+    <Card className="flex flex-col h-full shadow-md hover:shadow-xl transition-shadow duration-300 rounded-lg">
       <CardHeader>
         <CardTitle className="text-lg">{deck.name}</CardTitle>
         {deck.description && <CardDescription className="text-sm truncate">{deck.description}</CardDescription>}

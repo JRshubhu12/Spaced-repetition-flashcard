@@ -55,7 +55,7 @@ export default function DeckDetailPage() {
         <ArrowLeft className="mr-2 h-4 w-4" /> Back to Decks
       </Button>
 
-      <div className="mb-8 p-6 bg-card rounded-lg shadow">
+      <div className="mb-8 p-6 bg-card rounded-xl shadow-lg border border-border/50">
         <h1 className="text-3xl font-bold tracking-tight mb-2">{deck.name}</h1>
         {deck.description && <p className="text-muted-foreground mb-4">{deck.description}</p>}
         <div className="flex items-center gap-4 text-sm">

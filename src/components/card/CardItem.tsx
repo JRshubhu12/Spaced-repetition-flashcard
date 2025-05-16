@@ -40,7 +40,7 @@ export function CardItem({ card, onEdit }: CardItemProps) {
   };
 
   return (
-    <Card className="shadow-sm flex flex-col">
+    <Card className="shadow-sm hover:shadow-lg transition-shadow duration-200 rounded-lg flex flex-col">
       {card.imageUrl && (
         <div className="relative w-full h-32 border-b">
           <Image 
