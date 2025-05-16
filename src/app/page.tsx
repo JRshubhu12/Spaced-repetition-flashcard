@@ -27,7 +27,7 @@ export default function DashboardPage() {
 
   const [imagePreview, setImagePreview] = usePersistedState<string | null>('dashboardImagePreview', null);
   const [fileName, setFileName] = usePersistedState<string>('dashboardImageFileName', "");
-  
+
   const [notificationStatus, setNotificationStatus] = useState<NotificationPermission | 'loading' | 'unsupported'>('loading');
 
   useEffect(() => {
@@ -58,10 +58,10 @@ export default function DashboardPage() {
           );
         }
       };
-      
+
       // Initial check
-      checkAndNotify(); 
-      
+      checkAndNotify();
+
       intervalId = setInterval(checkAndNotify, NOTIFICATION_INTERVAL);
     }
 
@@ -119,14 +119,18 @@ export default function DashboardPage() {
 
           <div className="mt-6 md:mt-0 text-center w-full md:w-auto">
             <div className="mb-4">
-              <label className="block mb-2 text-sm font-medium text-foreground">Upload Your Own Image</label>
+              <label className="block mb-2 text-sm font-medium text-foreground">Upload Profile Picture</label>
+
               {!imagePreview && (
                 <div className="flex items-center justify-center w-full">
-                  <label htmlFor="dashboard-image-upload" className="flex flex-col items-center justify-center w-full h-32 bg-card border-2 border-border border-dashed rounded-lg cursor-pointer hover:bg-muted/50 transition">
+                  <label
+                    htmlFor="dashboard-image-upload"
+                    className="flex flex-col items-center justify-center w-32 h-32 bg-card border-2 border-border border-dashed rounded-full cursor-pointer hover:bg-muted/50 transition"
+                  >
                     <div className="flex flex-col items-center justify-center pt-5 pb-6">
                       <svg
                         aria-hidden="true"
-                        className="w-8 h-8 mb-3 text-muted-foreground"
+                        className="w-6 h-6 mb-2 text-muted-foreground"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -138,8 +142,8 @@ export default function DashboardPage() {
                           d="M7 16V4m0 0L3 8m4-4l4 4M3 20h18"
                         />
                       </svg>
-                      <p className="text-sm text-muted-foreground">
-                        <span className="font-semibold">Click to upload</span> or drag and drop
+                      <p className="text-xs text-muted-foreground text-center px-2">
+                        <span className="font-semibold">Upload</span>
                       </p>
                     </div>
                     <input
@@ -153,19 +157,20 @@ export default function DashboardPage() {
                 </div>
               )}
             </div>
-            <div className="overflow-hidden rounded-lg shadow-lg border border-border hover:shadow-2xl transition duration-300 max-w-xs mx-auto">
+
+            <div className="mx-auto w-32 h-32 rounded-full overflow-hidden border border-border shadow-md">
               <Image
-                src={imagePreview || "https://placehold.co/300x200.png"}
-                alt={fileName || "Learning Illustration"}
-                width={300}
-                height={200}
-                className="object-cover transition-transform duration-300 hover:scale-105 w-full h-auto"
-                data-ai-hint="education learning"
+                src={imagePreview || "https://placehold.co/100x100.png"}
+                alt={fileName || "Profile Image"}
+                width={128}
+                height={128}
+                className="object-cover w-full h-full"
               />
             </div>
           </div>
+
         </div>
-        
+
         {/* Notification Button Section */}
         {notificationStatus !== 'unsupported' && (
           <div className="mt-6 pt-4 border-t border-border/50">
@@ -185,7 +190,7 @@ export default function DashboardPage() {
               </div>
             )}
             {notificationStatus === 'loading' && !isLoading && (
-               <Button variant="outline" disabled>
+              <Button variant="outline" disabled>
                 <BellPlus className="mr-2 h-4 w-4 animate-pulse" /> Checking permissions...
               </Button>
             )}
