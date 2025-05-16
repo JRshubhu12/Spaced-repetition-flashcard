@@ -1,9 +1,9 @@
+
 "use client";
 
-import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useFlashwiseStore } from '@/hooks/use-flashwise-store';
+import { useFlashwiseStore, usePersistedState } from '@/hooks/use-flashwise-store';
 import { Button } from '@/components/ui/button';
 import {
   Card, CardContent, CardDescription, CardFooter,
@@ -20,8 +20,8 @@ export default function DashboardPage() {
   const overallDueCount = getDueCardsCount();
   const stats = getOverallStats();
 
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [fileName, setFileName] = useState<string>("");
+  const [imagePreview, setImagePreview] = usePersistedState<string | null>('dashboardImagePreview', null);
+  const [fileName, setFileName] = usePersistedState<string>('dashboardImageFileName', "");
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -67,18 +67,17 @@ export default function DashboardPage() {
         </div>
 
         {/* Modern Image Upload and Preview */}
-        {/* Modern Image Upload and Preview */}
         <div className="hidden md:block mt-6 md:mt-0 text-center">
           <div className="mb-4">
-            <label className="block mb-2 text-sm font-medium text-gray-700">Upload Your Own Image</label>
+            <label className="block mb-2 text-sm font-medium text-foreground">Upload Your Own Image</label>
 
             {!imagePreview && (
               <div className="flex items-center justify-center w-full">
-                <label className="flex flex-col items-center justify-center w-full h-32 bg-white rounded-lg border-2 border-dashed cursor-pointer hover:bg-gray-100 transition">
+                <label htmlFor="dashboard-image-upload" className="flex flex-col items-center justify-center w-full h-32 bg-card border-2 border-border border-dashed rounded-lg cursor-pointer hover:bg-muted/50 transition">
                   <div className="flex flex-col items-center justify-center pt-5 pb-6">
                     <svg
                       aria-hidden="true"
-                      className="w-8 h-8 mb-3 text-gray-400"
+                      className="w-8 h-8 mb-3 text-muted-foreground"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -90,11 +89,12 @@ export default function DashboardPage() {
                         d="M7 16V4m0 0L3 8m4-4l4 4M3 20h18"
                       />
                     </svg>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-muted-foreground">
                       <span className="font-semibold">Click to upload</span> or drag and drop
                     </p>
                   </div>
                   <input
+                    id="dashboard-image-upload"
                     type="file"
                     accept="image/*"
                     className="hidden"
@@ -105,13 +105,14 @@ export default function DashboardPage() {
             )}
           </div>
 
-          <div className="overflow-hidden rounded-lg shadow-lg border border-gray-200 hover:shadow-2xl transition duration-300">
+          <div className="overflow-hidden rounded-lg shadow-lg border border-border hover:shadow-2xl transition duration-300">
             <Image
               src={imagePreview || "https://placehold.co/300x200.png"}
-              alt="Learning Illustration"
+              alt={fileName || "Learning Illustration"}
               width={300}
               height={200}
               className="object-cover transition-transform duration-300 hover:scale-105"
+              data-ai-hint="education learning"
             />
           </div>
         </div>

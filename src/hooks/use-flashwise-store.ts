@@ -9,7 +9,7 @@ import { formatISO, startOfDay } from 'date-fns';
 const DECKS_STORAGE_KEY = 'flashwise_decks';
 const CARDS_STORAGE_KEY = 'flashwise_cards';
 
-function usePersistedState<T>(key: string, initialState: T): [T, (value: T | ((val: T) => T)) => void] {
+export function usePersistedState<T>(key: string, initialState: T): [T, (value: T | ((val: T) => T)) => void] {
   const [state, setState] = useState<T>(() => {
     if (typeof window === 'undefined') {
       return initialState;
