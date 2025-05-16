@@ -1,8 +1,10 @@
+
 export interface Card {
   id: string;
   deckId: string;
   front: string;
   back: string;
+  imageUrl?: string; // Optional field for the image URL
   interval: number; // in days
   easeFactor: number; // typically starts at 2.5
   dueDate: string; // ISO string date, YYYY-MM-DD

@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { Deck, Card } from '@/types';
@@ -41,9 +42,6 @@ export function useFlashwiseStore() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // This effect helps ensure that the initial state from localStorage is loaded
-    // before rendering dependent components, reducing hydration mismatches.
-    // However, usePersistedState already handles initial load. This is more of a flag.
     setIsLoading(false); 
   }, []);
 
@@ -74,12 +72,13 @@ export function useFlashwiseStore() {
   }, [setDecks, setCards]);
 
   // Card Operations
-  const addCard = useCallback((deckId: string, front: string, back: string) => {
+  const addCard = useCallback((deckId: string, front: string, back: string, imageUrl?: string) => {
     const newCard: Card = {
       id: crypto.randomUUID(),
       deckId,
       front,
       back,
+      imageUrl,
       interval: 0,
       easeFactor: INITIAL_EASE_FACTOR,
       dueDate: formatISO(startOfDay(new Date()), { representation: 'date' }),
@@ -99,8 +98,23 @@ export function useFlashwiseStore() {
     return cards.find(c => c.id === cardId);
   }, [cards]);
 
-  const updateCard = useCallback((cardId: string, updates: Partial<Omit<Card, 'id' | 'deckId' | 'createdAt' | 'history' | 'dueDate' | 'interval' | 'easeFactor'>>) => {
-    setCards(prev => prev.map(c => c.id === cardId ? { ...c, ...updates, updatedAt: new Date().toISOString() } : c));
+  const updateCard = useCallback((cardId: string, updates: { front?: string; back?: string; imageUrl?: string | null }) => {
+    setCards(prev => prev.map(c => {
+      if (c.id === cardId) {
+        const updatedCard = { ...c, updatedAt: new Date().toISOString() };
+        if (updates.front !== undefined) {
+          updatedCard.front = updates.front;
+        }
+        if (updates.back !== undefined) {
+          updatedCard.back = updates.back;
+        }
+        if (updates.imageUrl !== undefined) { // Check if imageUrl is part of the update payload
+           updatedCard.imageUrl = updates.imageUrl === null ? undefined : updates.imageUrl;
+        }
+        return updatedCard;
+      }
+      return c;
+    }));
   }, [setCards]);
 
   const deleteCard = useCallback((cardId: string) => {
@@ -132,7 +146,6 @@ export function useFlashwiseStore() {
     const today = new Date();
     const dueTodayCount = cards.filter(card => isCardDue(card, today)).length;
     
-    // Calculate mastery: card is mastered if interval > 21 days (example threshold)
     const masteredCardsCount = cards.filter(card => card.interval > 21).length;
     const masteryPercentage = totalCards > 0 ? (masteredCardsCount / totalCards) * 100 : 0;
 

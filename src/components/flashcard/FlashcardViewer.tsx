@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -6,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { CheckCircle2, XCircle, RotateCcw } from 'lucide-react';
 import styles from './flashcard-viewer.module.css'; // CSS Module for animations
 import { cn } from '@/lib/utils';
+import Image from 'next/image';
 
 interface FlashcardViewerProps {
   card: CardType;
@@ -28,7 +30,6 @@ export function FlashcardViewer({ card, onKnow, onDontKnow, showFlipButton = fal
 
   const handleKnow = () => {
     if (!isFlipped) setIsFlipped(true); // Ensure back is shown before processing
-    // Add a small delay to allow user to see the back if they clicked "Know" too fast on front
     setTimeout(() => onKnow(card.id), isFlipped ? 0 : 300);
   };
 
@@ -42,10 +43,25 @@ export function FlashcardViewer({ card, onKnow, onDontKnow, showFlipButton = fal
       <div className={styles.flashcardContainer} onClick={!showFlipButton ? handleFlip : undefined}>
         <div className={cn(styles.flashcard, { [styles.isFlipped]: isFlipped })}>
           <div className={cn(styles.flashcardFace, styles.flashcardFront)}>
-            <p className={styles.content}>{card.front}</p>
+            <div className={styles.contentContainer}>
+              {card.imageUrl && (
+                <div className={styles.imageContainer}>
+                  <Image src={card.imageUrl} alt="Card image" layout="fill" objectFit="contain" />
+                </div>
+              )}
+              <p className={styles.text_content}>{card.front}</p>
+            </div>
           </div>
           <div className={cn(styles.flashcardFace, styles.flashcardBack)}>
-            <p className={styles.content}>{card.back}</p>
+             <div className={styles.contentContainer}>
+              {/* You might want to show the image on the back too, or not. For now, let's keep it symmetric. */}
+              {/* {card.imageUrl && (
+                <div className={styles.imageContainer}>
+                  <Image src={card.imageUrl} alt="Card image" layout="fill" objectFit="contain" />
+                </div>
+              )} */}
+              <p className={styles.text_content}>{card.back}</p>
+            </div>
           </div>
         </div>
       </div>

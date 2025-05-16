@@ -1,9 +1,10 @@
+
 "use client";
 
 import type { Card as CardType } from '@/types';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Trash2, Edit3 } from 'lucide-react';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Trash2, Edit3, Image as ImageIcon } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,6 +20,7 @@ import { useFlashwiseStore } from '@/hooks/use-flashwise-store';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { format, parseISO } from 'date-fns';
+import Image from 'next/image';
 
 interface CardItemProps {
   card: CardType;
@@ -38,20 +40,34 @@ export function CardItem({ card, onEdit }: CardItemProps) {
   };
 
   return (
-    <Card className="shadow-sm">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-base font-medium">Front</CardTitle>
+    <Card className="shadow-sm flex flex-col">
+      {card.imageUrl && (
+        <div className="relative w-full h-32 border-b">
+          <Image 
+            src={card.imageUrl} 
+            alt="Card image" 
+            layout="fill" 
+            objectFit="contain" 
+            className="rounded-t-lg"
+          />
+        </div>
+      )}
+      <CardHeader className="pb-2 pt-4">
+        <CardTitle className="text-base font-medium flex items-center">
+          Front 
+          {card.imageUrl && <ImageIcon className="h-4 w-4 ml-2 text-muted-foreground" />}
+        </CardTitle>
       </CardHeader>
-      <CardContent className="pb-2">
-        <p className="text-sm truncate">{card.front}</p>
+      <CardContent className="pb-2 flex-grow">
+        <p className="text-sm line-clamp-2">{card.front}</p>
       </CardContent>
       <CardHeader className="pb-2 pt-2">
          <CardTitle className="text-base font-medium">Back</CardTitle>
       </CardHeader>
-      <CardContent className="pb-4">
-        <p className="text-sm truncate">{card.back}</p>
+      <CardContent className="pb-4 flex-grow">
+        <p className="text-sm line-clamp-2">{card.back}</p>
       </CardContent>
-      <CardFooter className="flex justify-between items-center pt-2 border-t">
+      <CardFooter className="flex justify-between items-center pt-2 border-t mt-auto">
         <div className="text-xs text-muted-foreground">
             Due: <Badge variant={new Date(card.dueDate) <= new Date() ? "default" : "outline" } className="text-xs">{format(parseISO(card.dueDate), 'MMM dd, yyyy')}</Badge>
         </div>
