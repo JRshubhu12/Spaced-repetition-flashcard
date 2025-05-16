@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from 'react';
@@ -17,6 +18,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useFlashwiseStore } from '@/hooks/use-flashwise-store';
 import { PlusCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation'; // Import useRouter
 
 export function CreateDeckDialog() {
   const [isOpen, setIsOpen] = useState(false);
@@ -24,6 +26,7 @@ export function CreateDeckDialog() {
   const [description, setDescription] = useState('');
   const { addDeck } = useFlashwiseStore();
   const { toast } = useToast();
+  const router = useRouter(); // Initialize router
 
   const handleSubmit = () => {
     if (!name.trim()) {
@@ -42,6 +45,7 @@ export function CreateDeckDialog() {
     setName('');
     setDescription('');
     setIsOpen(false);
+    router.refresh(); // Refresh the current route
   };
 
   return (
