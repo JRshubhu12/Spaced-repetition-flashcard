@@ -66,8 +66,8 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {/* Modern Image Upload and Preview */}
-        <div className="hidden md:block mt-6 md:mt-0 text-center">
+        {/* Modern Image Upload and Preview - Removed hidden md:block */}
+        <div className="mt-6 md:mt-0 text-center w-full md:w-auto">
           <div className="mb-4">
             <label className="block mb-2 text-sm font-medium text-foreground">Upload Your Own Image</label>
 
@@ -105,13 +105,13 @@ export default function DashboardPage() {
             )}
           </div>
 
-          <div className="overflow-hidden rounded-lg shadow-lg border border-border hover:shadow-2xl transition duration-300">
+          <div className="overflow-hidden rounded-lg shadow-lg border border-border hover:shadow-2xl transition duration-300 max-w-xs mx-auto">
             <Image
               src={imagePreview || "https://placehold.co/300x200.png"}
               alt={fileName || "Learning Illustration"}
               width={300}
               height={200}
-              className="object-cover transition-transform duration-300 hover:scale-105"
+              className="object-cover transition-transform duration-300 hover:scale-105 w-full h-auto"
               data-ai-hint="education learning"
             />
           </div>
